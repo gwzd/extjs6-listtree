@@ -1,0 +1,55 @@
+.PlayButtonCss{
+	position: relative;
+	top: 0;
+	box-shadow: 0 7px 0 #ff00bb, 0 8px 3px rgba(0, 0, 0, 0.2);
+}
+
+.PlayButtonCss:hover, .PlayButtonCss:focus {
+    -webkit-box-shadow: 0 7px 0 #ff00bb, 0 8px 3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 7px 0 #ff00bb, 0 8px 3px rgba(0, 0, 0, 0.2); 
+}
+/*****大背景的国网绿 ***/
+.gwThemeBtnBackground{
+	background-color:#006569 !important;
+}
+.gwThemePaneltitleBackground{
+	cursor: pointer;
+	background-color:#006569 !important;
+}
+/* 导航树的背景色*/ 
+.IndexTreeMenuHead{
+	cursor: pointer;
+	background-color:#0a4a4d !important;
+}
+/* 云台控制按钮背景色*/ 
+.PtzCtrlBtnBKColor{
+	cursor: pointer;
+	background-color:#f6f7f9 !important;
+	color:#006569 !important;
+}
+/********************************************************tab css*****************************************************/
+/*覆盖extjs tab控件中 系统的x-tab-bar样式，为其加上背景色*/
+.x-tab-bar{
+	z-index:0;
+	position:relative;
+	background-color: #006569 !important;
+}
+/******************************************重载extjs系统样式 -- 导航树treelist的样式***************************************************/
+
+.x-treelist{
+	background-position: 0%;
+	background-color:#0a4a4b !important ; 
+}
+.x-treelist-item-text{
+	cursor:pointer;
+	white-space:nowrap;
+	overflow:hidden;
+	color:#ffffff;
+	font-weight:bold
+}
+.x-treelist-item-over{background-color:#0a4b26}
+.x-treelist-item-selected > .x-treelist-row{background-color:#04292a}
+.x-treelist-item-selected > .x-treelist-row-over{background-color:#f3eec8}
+/************************************百度地图api 取消左下角的log  (不好用)*************************************************/
+.BMap_cpyCtrl {display: none;}
+.anchorBL{display:none;}

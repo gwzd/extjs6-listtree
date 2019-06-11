@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+     "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+     "http://struts.apache.org/dtds/struts-2.0.dtd">
+ <struts>
+ 	<!-- 解决中文乱码设置 -->
+ 	<!-- 调试模式，出错时会输出更多更友好得信息 -->
+	<constant name="struts.devMode" value="false" /> 
+	<constant value="true" name="struts.enable.DynamicMethodInvocation"/>
+	<!-- 该属性设置是否每次HTTP请求到达时,系统都重新加载资源文件 -->
+	<constant value="true" name="struts.i18n.reload"/>	
+	<!-- 主题，将值设置为simple，即不使用UI模板。这将不会生成额外的html标签 -->
+	<constant value="simple" name="struts.ui.theme"/>	
+	<constant value="zh_CN" name="struts.locale"/>
+	<!-- 国际化资源文件名称 -->
+    <constant name="struts.custom.i18n.resources" value="i18n" />
+    <!-- 设置字符集 -->	
+	<constant value="UTF-8" name="struts.i18n.encoding"/>	
+	<constant value="false" name="struts.serve.static.browserCache"/>
+	<constant value="none" name="struts.url.includeParams"/>
+	<!-- 解决中文乱码结束 /MyTree.html-->
+	<package name="comeIn" extends="struts-default">
+	    <action name="Userlogin">
+	    	<result>login.jsp</result>
+	    </action>
+	    
+	    <action name="Unity3D">
+	    	<result>/Unity3D/index.html</result>
+	    </action>
+	    
+	    <action name="MainPage" class="com.TunnelMainPage.gwzd.MainPage" method="execute">
+	        <result name="success">index.jsp</result>
+	        <result name="error">login.jsp</result>
+	    </action>
+	    <action name="showPic" class="com.TunnelMainPage.gwzd.ShowImgAction" method="execute">
+            <result type="stream">
+                <param name="contentType">image/jpg</param>
+                <param name="inputName">downloadFile</param>
+                <param name="bufferSize">4096</param>
+            </result>
+        </action>
+	</package>
+	<package name="extjs" extends="json-default" namespace="/">
+        <action name="login" class="com.TunnelLoginPage.gwzd.LoginPage" method="execute">
+            <result type="json"></result>
+        </action>
+        <action name="MainTree" class="com.TunnelMainPage.gwzd.MainTreeMenu" method="execute">
+            <result type="json"></result>
+        </action>
+        <action name="AlarmChart" class="com.TunnelMainPage.gwzd.MainPageAlarm" method="execute">
+            <result type="json"></result>
+        </action>
+        <action name="MapMark" class="com.TunnelMainPage.gwzd.MainLTProtectMapMark" method="execute">
+            <result type="json"></result>
+        </action>
+        <action name="NodeAlarm" class="com.TunnelMainPage.gwzd.MainNodeAlarm" method="execute">
+            <result type="json"></result>
+        </action>
+        <action name="AllAlarm" class="com.TunnelMainPage.gwzd.MainAllAlarm" method="execute">
+            <result type="json"></result>
+        </action>
+        <action name="MainTreeChange" class="com.TunnelMainPage.gwzd.MainTreeChange" method="execute">
+            <result type="json"></result>
+        </action>
+    </package>
+</struts>
