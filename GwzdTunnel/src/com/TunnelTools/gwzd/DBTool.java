@@ -289,11 +289,11 @@ public class DBTool {
 				obj1.put("linedata",i_onLine);
 				array.add(obj1);
 				JSONObject obj2 = new JSONObject();
-				obj2.put("linename", "三天内离线");
+				obj2.put("linename", "暂停工作");
 				obj2.put("linedata",i_threeDayUnline);
 				array.add(obj2);
 				JSONObject obj3 = new JSONObject();
-				obj3.put("linename", "三天前离线");
+				obj3.put("linename", "离线");
 				obj3.put("linedata",i_afterThreeDayUnline);
 				array.add(obj3);
 				JSONObject obj4 = new JSONObject();
@@ -341,7 +341,8 @@ public class DBTool {
 			dbConn = getSqlServerConn();
 			if(dbConn != null)
 			{
-				String str_getAlarmInfo = "select ALARMUNIT_TYPE,count(*) from antihisdata where end_timestamp is null and timestamp>TRUNC(SYSDATE-1) and ANTIID in (select nodeid from maingroup where nodeid !=? start with nodeid=? connect by prior nodeid=pid) group by ALARMUNIT_TYPE";
+				//end_timestamp is null and 
+				String str_getAlarmInfo = "select ALARMUNIT_TYPE,count(*) from antihisdata where alarmmark=0 and timestamp>TRUNC(SYSDATE-10) and ANTIID in (select nodeid from maingroup where nodeid !=? start with nodeid=? connect by prior nodeid=pid) group by ALARMUNIT_TYPE";
 				PreparedStatement pmst_CheckLogin = dbConn.prepareStatement(str_getAlarmInfo);
 				pmst_CheckLogin.setString(1, str_RootNodeID);
 				pmst_CheckLogin.setString(2, str_RootNodeID);
@@ -439,10 +440,12 @@ public class DBTool {
 			if(dbConn != null)
 			{
 				String str_sql = "select antiid,to_char(timestamp,'yyyy-MM-dd hh24:mm:ss'),"
-						+ "alarmunit_type,alarmno,acquisition_distance,alarm_picpath from "
+						+ "alarmunit_type,alarmno,acquisition_distance,alarm_picpath,id from "
 						+ "(select a.*,row_number() over (partition by a.alarmunit_type order by timestamp desc ) as rn "
-						+ "from antihisdata a where antiid=? and end_timestamp is null "
-						+ "and timestamp>TRUNC(SYSDATE-1) ) where rn = 1";
+						+ "from antihisdata a where antiid=? and alarmmark=0 "
+						+ "and timestamp>TRUNC(SYSDATE-10) ) where rn = 1";
+				//System.out.println("str_sql:" + str_sql);
+				//System.out.println("str_id:" + str_id);
 				PreparedStatement pmst_CheckLogin = dbConn.prepareStatement(str_sql);
 				pmst_CheckLogin.setString(1, str_id);
 				ResultSet res = pmst_CheckLogin.executeQuery();
@@ -453,6 +456,7 @@ public class DBTool {
 					int i_alarmNo = res.getInt(4);
 					int i_alarmJL = res.getInt(5);
 					String str_PicPath = res.getString(6);
+					String str_AlarmID = res.getString(7);
 					String str_Type = "";
 					switch(i_alarm_type){
 					case 0:
@@ -468,7 +472,8 @@ public class DBTool {
 					default:
 						str_Type = "电子围栏";
 					}
-					MainNodeAlarmNode nodealarm = new MainNodeAlarmNode(str_BegTime,str_Type,i_alarmNo,i_alarmJL,str_PicPath);
+					//System.out.println("DBTool str_AlarmID:"+str_AlarmID);
+					MainNodeAlarmNode nodealarm = new MainNodeAlarmNode(str_BegTime,str_Type,i_alarmNo,i_alarmJL,str_PicPath,str_AlarmID);
 					str_ret.add(nodealarm);
 				}
 				closeDB(dbConn);
@@ -496,7 +501,7 @@ public class DBTool {
 			{
 				//String str_Sql = "select count(*) from (select a.*,row_number() over (partition by a.antiid,a.alarmunit_type order by timestamp desc ) as rn from antihisdata a where end_timestamp is null and timestamp>TRUNC(SYSDATE-1) ) b,antictrl c where b.rn = 1 and b.antiid=c.id and c.id in (select nodeid from maingroup start with nodeid=? connect by prior nodeid=pid)";
 				//这个sql语句是只取有照片的报警
-				String str_Sql = "select count(*) from (select a.*,row_number() over (partition by a.antiid,a.alarmunit_type order by timestamp desc ) as rn from antihisdata a where end_timestamp is null and timestamp>TRUNC(SYSDATE-1) ) b,antictrl c where b.rn = 1 and b.antiid=c.id and c.id in (select nodeid from maingroup start with nodeid=? connect by prior nodeid=pid)";
+				String str_Sql = "select count(*) from (select a.*,row_number() over (partition by a.antiid,a.alarmunit_type order by timestamp desc ) as rn from antihisdata a where alarmmark=0 and timestamp>TRUNC(SYSDATE-10) ) b,antictrl c where b.rn = 1 and b.antiid=c.id and c.id in (select nodeid from maingroup start with nodeid=? connect by prior nodeid=pid)";
 				PreparedStatement pmst_CheckLogin = dbConn.prepareStatement(str_Sql);
 				pmst_CheckLogin.setString(1, NodeID);
 				//System.out.println("NodeID:" + NodeID);
@@ -525,7 +530,7 @@ public class DBTool {
 			dbConn = getSqlServerConn();
 			if(dbConn != null)
 			{
-				String strSql = "select * from (select c.name,to_char(b.timestamp,'yyyy-MM-dd hh24:mm:ss') Mytime,b.alarmunit_type,b.alarmno,b.acquisition_distance,b.alarm_picpath,c.cameraid,rownum rowno from (select a.*,row_number() over (partition by a.antiid,a.alarmunit_type order by timestamp desc ) as rn from antihisdata a where end_timestamp is null and timestamp>TRUNC(SYSDATE-1) ) b,antictrl c where b.rn = 1 and b.antiid=c.id and c.id in (select nodeid from maingroup start with nodeid=? connect by prior nodeid=pid)) where rowno>? and rowno<?";
+				String strSql = "select * from (select c.name,to_char(b.timestamp,'yyyy-MM-dd hh24:mm:ss') Mytime,b.alarmunit_type,b.alarmno,b.acquisition_distance,b.alarm_picpath,c.cameraid,rownum rowno,b.id from (select a.*,row_number() over (partition by a.antiid,a.alarmunit_type order by timestamp desc ) as rn from antihisdata a where alarmmark=0 and timestamp>TRUNC(SYSDATE-10) ) b,antictrl c where b.rn = 1 and b.antiid=c.id and c.id in (select nodeid from maingroup start with nodeid=? connect by prior nodeid=pid)) where rowno>? and rowno<?";
 				PreparedStatement pmst_CheckLogin = dbConn.prepareStatement(strSql);
 				pmst_CheckLogin.setString(1, NodeID);
 				pmst_CheckLogin.setInt(2,start);
@@ -539,6 +544,7 @@ public class DBTool {
 					int i_alarmJL = res.getInt(5);
 					String str_PicPath = res.getString(6);
 					String str_CamID = res.getString(7);
+					String str_AlarmID = res.getString(9);
 					String str_Type = "";
 					switch(i_alarm_type){
 					case 0:
@@ -554,7 +560,7 @@ public class DBTool {
 					default:
 						str_Type = "电子围栏";
 					}
-					MainAllAlarmNode nodealarm = new MainAllAlarmNode(str_Name,str_BegTime,str_Type,i_alarmNo,i_alarmJL,str_PicPath,str_CamID);
+					MainAllAlarmNode nodealarm = new MainAllAlarmNode(str_Name,str_BegTime,str_Type,i_alarmNo,i_alarmJL,str_PicPath,str_CamID,str_AlarmID);
 					alarmList.add(nodealarm);
 				}
 				closeDB(dbConn);
@@ -565,6 +571,35 @@ public class DBTool {
 			e.printStackTrace();
 		}
 		return alarmList;
+	}
+	/**
+	 * @func 报警处理
+	 * @author 张现利
+	 * @param str_AlarmID
+	 * @param alarmMark
+	 * @return
+	 */
+	public int AlarmHandler(String str_AlarmID,String alarmMark)
+	{
+		int i_AlarmHandRet = 0;
+		Connection dbConn = null;
+		try {
+			dbConn = getSqlServerConn();
+			if(dbConn != null)
+			{
+				String str_sql = "update antihisdata set alarmmark=? where id=?";
+				PreparedStatement pmst_CheckLogin = dbConn.prepareStatement(str_sql);
+				pmst_CheckLogin.setString(1, alarmMark);
+				pmst_CheckLogin.setString(2,str_AlarmID);
+				i_AlarmHandRet = pmst_CheckLogin.executeUpdate();
+			}
+			closeDB(dbConn);
+		}catch(Exception e)
+		{
+			closeDB(dbConn);
+			e.printStackTrace();
+		}
+		return i_AlarmHandRet;
 	}
 	/**
 	 * @func 修改立体防护节点的信息

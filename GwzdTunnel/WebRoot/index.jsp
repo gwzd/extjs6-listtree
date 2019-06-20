@@ -10,7 +10,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <head>
     <base href="<%=basePath%>">
     
-    <title>电缆隧道监控平台</title>
+    <title>立体防护平台</title>
 	<!--
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	-->
@@ -40,16 +40,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<!--  百度底图api  -->
 	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=Zy31TjGzVfSQmHrZhqzL9TWaYbaU1k4I&s=1"></script>
 	<script type="text/javascript" src="MyJS/baiduMap/mapShow.js"></script>
-	<!-- 立体防护3D模型 -->
-	<script src="webgl/build/three.js"></script>
-	<script src="webgl/js/WebGL.js"></script>
-    <script src="webgl/js/controls/OrbitControls.js"></script>
-    <script src="webgl/js/renderers/CSS2DRenderer.js"></script>
-    <script src="webgl/js/libs/stats.min.js"></script>
-    <!-- <script src="webgl/js/Cloth.js"></script> -->
-    
-	<!-- 导入自己的js -->
-	<script type="text/javascript" src="MyJS/widget/TebPanelItem.js"></script>
+	
 	<script type="text/javascript" src="MyJS/MainPage.js"></script>
   </head>
   

@@ -8,7 +8,8 @@ public class MainAllAlarmNode {
 	private int alarmJL;
 	private String alarmPicPath;
 	private String cameraID;
-	public MainAllAlarmNode(String str_name,String str_alarmTime,String str_alarmType,int i_alarmNo, int i_alarmJL , String str_alarmPicPath,String str_cameraID){
+	private String alarmID;
+	public MainAllAlarmNode(String str_name,String str_alarmTime,String str_alarmType,int i_alarmNo, int i_alarmJL , String str_alarmPicPath,String str_cameraID,String str_AlarmID){
 		setAlarmName(str_name);
 		setAlarmTime(str_alarmTime);
 		setAlarmNo(i_alarmNo);
@@ -16,6 +17,7 @@ public class MainAllAlarmNode {
 		setAlarmJL(i_alarmJL);
 		setAlarmPicPath(str_alarmPicPath);
 		setCameraID(str_cameraID);
+		setAlarmID(str_AlarmID);
 	}
 	public String getAlarmTime() {
 		return alarmTime;
@@ -58,5 +60,11 @@ public class MainAllAlarmNode {
 	}
 	public void setAlarmName(String alarmName) {
 		this.alarmName = alarmName;
+	}
+	public String getAlarmID() {
+		return alarmID;
+	}
+	public void setAlarmID(String alarmID) {
+		this.alarmID = alarmID;
 	}
 }

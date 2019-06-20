@@ -205,12 +205,41 @@ function GetAlarmChart(){
 	}, 1000*60*5);//1000*60*3
 }
 /**
+ * @func 报警处理
+ * @param {} id
+ * @param {} mark
+ */
+function HandlerAlarm(id,mark){
+	//AlarmHandler
+	Ext.Ajax.request({
+		url: 'AlarmHandler.action',
+		timeout:6000,
+		params:{alarmID:id,alarmMark:mark},
+		success: function(response, opts) {
+			var obj = Ext.decode(response.responseText);
+			if(obj.success){
+			   AllAlarmStore.loadPage(1);
+			}
+			else{
+				ShowErrorWin.show();
+            	ShowErrorWin.down('image').setSrc('./MyImage/error.png');
+            	ShowErrorWin.down('tbtext').setText('操作失败!');
+			}
+		},
+		failure: function(response, opts) {
+		    ShowErrorWin.show();
+        	ShowErrorWin.down('image').setSrc('./MyImage/error.png');
+        	ShowErrorWin.down('tbtext').setText('操作失败!');
+		}
+	});
+}
+/**
  * @func 获取全部报警信息
  * @author zxl
  * @time 2019.5.29
  */
 var AllAlarmStore = Ext.create('Ext.data.Store', {
-    fields: ['alarmName','alarmTime', 'alarmType', 'alarmNo','alarmJL','alarmPicPath','cameraID'],
+    fields: ['alarmName','alarmTime', 'alarmType', 'alarmNo','alarmJL','alarmPicPath','cameraID','alarmID'],
     pageSize: 6,
     proxy: {
          type: 'ajax',
@@ -226,8 +255,8 @@ var AllAlarmStore = Ext.create('Ext.data.Store', {
 var ShowAllAlarmWin = Ext.create('Ext.window.Window', {
     title: '<font size="3" color="#ffffff"><B>报警列表</B></font>',
     //id:'ShowMarkInfoID',
-    height: 350,
-    width: 540,
+    height: 340,
+    width: 600,
     resizable:false,
     titleAlign:'center',
     closeAction:'hide',
@@ -251,15 +280,17 @@ var ShowAllAlarmWin = Ext.create('Ext.window.Window', {
 	        type: 'rowmodel'
 	    },
 		columns: [
-			{ text: '点位',width:90, dataIndex: 'alarmName' },
+			{ text: '点位',width:140, dataIndex: 'alarmName' },
 		    { text: '时间',width:150, dataIndex: 'alarmTime' },
 			{ text: '类型',width:80, dataIndex: 'alarmType'},
 			{ text: '序号', dataIndex: 'alarmNo',width:60},
-			{ text: '距离(m)', dataIndex: 'alarmJL',width:70},
+			{ text: '距离(m)', dataIndex: 'alarmJL',width:50},
 			{ text: '图片', dataIndex: 'alarmPicPath',hidden:true,sortable: false,hideable: false},
 			{ text: '视频', dataIndex: 'cameraID',hidden:true,sortable: false,hideable: false},
+			{ text: 'AlarmID', dataIndex: 'alarmID',hidden:true,sortable: false,hideable: false},
 			{ 
-				width:30,
+				width:50,
+				text:'展示',
 				xtype: 'actioncolumn',
 				sortable: false,
 				hideable: false,
@@ -282,15 +313,7 @@ var ShowAllAlarmWin = Ext.create('Ext.window.Window', {
 			                	ShowErrorWin.down('tbtext').setText('该报警尚未上传报警图片!');
                             }
                         }
-					}
-				]
-			},
-			{ 
-				width:30,
-				xtype: 'actioncolumn',
-				sortable: false,
-				hideable: false,
-				items:[
+					},
 					{
 						iconCls:'x-fa fa-camera',
 						handler: function (grid, rowIndex, colIndex) {
@@ -307,6 +330,33 @@ var ShowAllAlarmWin = Ext.create('Ext.window.Window', {
 			                	ShowErrorWin.down('tbtext').setText('该设备尚未绑定摄像机!');
                             }
                         }
+					}
+				]
+			},
+			{
+				width:50,
+				text:'处理',
+				sortable: false,
+				hideable: false,
+				xtype: 'actioncolumn',
+				items:[
+					{
+						iconCls:'x-fa fa-exclamation-circle',
+						handler: function (grid, rowIndex, colIndex) {
+							var rec = grid.getStore().getAt(rowIndex);
+							var AlarmID = rec.get("alarmID");
+							//console.log('alarmID:' , AlarmID);
+							HandlerAlarm(AlarmID,2);	//隐患
+						}
+					},
+					{
+						iconCls:'x-fa fa-check-circle',
+						handler: function (grid, rowIndex, colIndex) {
+							var rec = grid.getStore().getAt(rowIndex);
+							var AlarmID = rec.get("alarmID");
+							//console.log('alarmID:' , AlarmID);
+							HandlerAlarm(AlarmID,1);	//普通处理
+						}
 					}
 				]
 			}
@@ -695,7 +745,7 @@ Ext.onReady(function() {
 						        			listeners:{
 						        				'click':function(){
 						        					//console.log('标题头点击!');
-						        					install3D(this.up('tabpanel'));
+						        					//install3D(this.up('tabpanel'));
 						        				}
 						        			}
 						        		},

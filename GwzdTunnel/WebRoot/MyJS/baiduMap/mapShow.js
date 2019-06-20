@@ -223,7 +223,7 @@ var imageShowWindow = Ext.create('Ext.window.Window', {
     	}
     ]
 });
-var urlHead = 'http://192.168.1.101:10002/';
+var urlHead = 'http://112.54.80.211:10002/';
 /**
  * @func 录像
  */
@@ -668,6 +668,36 @@ var NodeInfoWindow = Ext.create('Ext.window.Window', {
     ]
 });
 /**
+ * @func 报警处理
+ * @param {} id
+ * @param {} mark
+ */
+function NodeHandlerAlarm(id,mark,store){
+	//AlarmHandler
+	Ext.Ajax.request({
+		url: 'AlarmHandler.action',
+		timeout:6000,
+		params:{alarmID:id,alarmMark:mark},
+		success: function(response, opts) {
+			var obj = Ext.decode(response.responseText);
+			if(obj.success){
+				store.removeAll();
+			    store.loadPage(1);
+			}
+			else{
+				ShowErrorWin.show();
+            	ShowErrorWin.down('image').setSrc('./MyImage/error.png');
+            	ShowErrorWin.down('tbtext').setText('操作失败!');
+			}
+		},
+		failure: function(response, opts) {
+		    ShowErrorWin.show();
+        	ShowErrorWin.down('image').setSrc('./MyImage/error.png');
+        	ShowErrorWin.down('tbtext').setText('操作失败!');
+		}
+	});
+}
+/**
  * @func 地图上的mark点击触发事件
  * @param {} Winx
  * @param {} Winy
@@ -677,7 +707,7 @@ var NodeInfoWindow = Ext.create('Ext.window.Window', {
  */
 function MarkClick(Winx,Winy,Nodeid,CameraID,Name,Tx,Ty){
 	var TableStore = Ext.create('Ext.data.Store', {
-	    fields: ['alarmTime', 'alarmType', 'alarmNo','alarmJL','alarmPicPath'],
+	    fields: ['alarmTime', 'alarmType', 'alarmNo','alarmJL','alarmPicPath','alarmID'],
 	    pageSize: 5,
 	    proxy: {
 	         type: 'ajax',
@@ -694,7 +724,7 @@ function MarkClick(Winx,Winy,Nodeid,CameraID,Name,Tx,Ty){
 	    title: '<font size="3" color="#ffffff"><B>' + Name + '</B></font>',
 	    //id:'ShowMarkInfoID',
 	    height: 260,
-	    width: 400,
+	    width: 450,
 	    x:Winx-200,
 	    y:Winy-260,
 	    resizable:false,
@@ -758,17 +788,17 @@ function MarkClick(Winx,Winy,Nodeid,CameraID,Name,Tx,Ty){
 				{ text: '序号', dataIndex: 'alarmNo',width:60},
 				{ text: '距离(m)', dataIndex: 'alarmJL',width:70},
 				{ text: '图片',hidden:true, dataIndex: 'alarmPicPath',sortable: false,hideable: false},
+				{ text: 'AlarmID', dataIndex: 'alarmID',hidden:true,sortable: false,hideable: false},
 				{ 
-					width:30,
+					width:80,
+					text:'操作',
 					xtype: 'actioncolumn',
 					items:[
 						{
 							iconCls:'x-fa fa-picture-o',
 							handler: function (grid, rowIndex, colIndex) {
                                 var rec = grid.getStore().getAt(rowIndex);
-                                //console.log("alarmPicPath",rec.get("alarmPicPath"));
                                 var alarmPicPath = rec.get("alarmPicPath");
-                                //console.log('alarmPicPath',alarmPicPath);
                                 if(alarmPicPath != null && alarmPicPath != ''){
                                 	var SrcPath = 'showPic.action?imagePath=' + alarmPicPath;
 	                                imageShowWindow.getComponent("ImageShowWinImage").setSrc(SrcPath);
@@ -780,6 +810,25 @@ function MarkClick(Winx,Winy,Nodeid,CameraID,Name,Tx,Ty){
 				                	ShowErrorWin.down('tbtext').setText('该报警尚未上传报警图片!');
 	                            }
                             }
+						},
+						{
+							iconCls:'x-fa fa-exclamation-circle',
+							handler: function (grid, rowIndex, colIndex) {
+								var rec = grid.getStore().getAt(rowIndex);
+								console.dir(rec);
+								var AlarmID = rec.get("alarmID");
+								console.log('alarmID:' , AlarmID);
+								NodeHandlerAlarm(AlarmID,2,grid.getStore());	//隐患
+							}
+						},
+						{
+							iconCls:'x-fa fa-check-circle',
+							handler: function (grid, rowIndex, colIndex) {
+								var rec = grid.getStore().getAt(rowIndex);
+								var AlarmID = rec.get("alarmID");
+								console.log('alarmID:' , AlarmID);
+								NodeHandlerAlarm(AlarmID,1,grid.getStore());	//普通处理
+							}
 						}
 					]
 				}

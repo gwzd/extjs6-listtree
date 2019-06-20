@@ -62,5 +62,8 @@
         <action name="MainTreeChange" class="com.TunnelMainPage.gwzd.MainTreeChange" method="execute">
             <result type="json"></result>
         </action>
+        <action name="AlarmHandler" class="com.alarm.gwzd.AlarmHandler" method="execute">
+            <result type="json"></result>
+        </action>
     </package>
 </struts>
